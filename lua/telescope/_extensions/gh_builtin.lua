@@ -325,7 +325,8 @@ B.gh_workflow = function(opts)
 end
 
 B.gh_workflow_run = function(prompt_bufnr)
-  local selection = action_state.get_selected_entry()
+  local selection = vim.fn.json_decode(action_state.get_selected_entry())
+
   actions.close(prompt_bufnr)
   if selection.id == "" then
     return

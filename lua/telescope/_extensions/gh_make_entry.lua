@@ -88,15 +88,22 @@ function gh_make_entry.gen_from_workflow(opts)
     },
   }
 
-
   return function(entry)
-    if entry == "" then
+    if type(entry) == "string" then
+      entry = vim.fn.json_decode(entry)
+    end
+
+    if not entry or not entry.id or not entry.name then
       return nil
     end
 
     return {
-      id = entry.id,
-      display = entry.name
+      value = entry,
+      ordinal = entry.name,
+      display = displayer {
+        entry.id,
+        entry.name
+      },
     }
   end
 end
