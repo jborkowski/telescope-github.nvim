@@ -77,6 +77,30 @@ function gh_make_entry.gen_from_run(opts)
   end
 end
 
+function gh_make_entry.gen_from_workflow(opts)
+  opts = opts or {}
+
+  local displayer = entry_display.create {
+    separator = "|",
+    items = {
+      { width = 20 },
+      { width = 40 },
+    },
+  }
+
+
+  return function(entry)
+    if entry == "" then
+      return nil
+    end
+
+    return {
+      id = entry.id,
+      display = entry.name
+    }
+  end
+end
+
 function gh_make_entry.gen_from_gist(opts)
   opts = opts or {}
 

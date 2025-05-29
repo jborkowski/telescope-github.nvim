@@ -310,7 +310,7 @@ B.gh_workflow = function(opts)
       prompt_title = title,
       finder = finders.new_table {
         results = results,
-        entry_maker = gh_e.gen_from_run(opts),
+        entry_maker = make_entry.gen_from_string(opts),
       },
       previewer = gh_p.gh_run_preview.new(opts),
       sorter = conf.file_sorter(opts),
