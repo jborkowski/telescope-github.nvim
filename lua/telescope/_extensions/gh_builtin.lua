@@ -312,7 +312,6 @@ B.gh_workflow = function(opts)
         results = results,
         entry_maker = make_entry.gen_from_string(opts),
       },
-      previewer = gh_p.gh_run_preview.new(opts),
       sorter = conf.file_sorter(opts),
       attach_mappings = function(_, map)
         map("i", "<c-r>", gh_a.gh_workflow_run)
