@@ -81,26 +81,28 @@ function gh_make_entry.gen_from_workflow(opts)
   opts = opts or {}
 
   local displayer = entry_display.create {
-    separator = " | ",
+    separator = "|",
     items = {
       { width = 20 },
       { width = 40 },
+      { remaining = true },
     },
   }
+  local make_display = function(entry)
+    return displayer {
+      entry.id,
+      entry.name,
+    }
+  end
 
   return function(entry)
-    -- Validate required fields
-    if not entry or not entry.id or not entry.name then
+    if entry == "" then
       return nil
     end
-
     return {
       value = entry,
       ordinal = entry.name,
-      display = displayer {
-        tostring(entry.id),
-        tostring(entry.name),
-      },
+      display = make_display,
       id = entry.id,
       name = entry.name,
     }
