@@ -81,7 +81,7 @@ function gh_make_entry.gen_from_workflow(opts)
   opts = opts or {}
 
   local displayer = entry_display.create {
-    separator = "|",
+    separator = " | ",
     items = {
       { width = 20 },
       { width = 40 },
@@ -89,10 +89,7 @@ function gh_make_entry.gen_from_workflow(opts)
   }
 
   return function(entry)
-    if type(entry) == "string" then
-      entry = vim.fn.json_decode(entry)
-    end
-
+    -- Validate required fields
     if not entry or not entry.id or not entry.name then
       return nil
     end
@@ -101,9 +98,11 @@ function gh_make_entry.gen_from_workflow(opts)
       value = entry,
       ordinal = entry.name,
       display = displayer {
-        entry.id,
-        entry.name
+        tostring(entry.id),
+        tostring(entry.name),
       },
+      id = entry.id,
+      name = entry.name,
     }
   end
 end

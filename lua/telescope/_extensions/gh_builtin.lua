@@ -301,24 +301,32 @@ B.gh_workflow = function(opts)
   local opts_query = parse_opts(opts, "workflow")
   local cmd = vim.tbl_flatten { "gh", "workflow", "list", "--json", "id", "--json", "name", opts_query }
   local title = "Workflow list"
-  msgLoadingPopup("Loading " .. title, cmd, function(raw)
-    local jsonArray = vim.fn.json_decode(raw)
-    if jsonArray == nil or #jsonArray == 0 then
+  msgLoadingPopup("Loading " .. title, cmd, function(raw_json)
+    local results = vim.fn.json_decode(raw_json)
+    if not results or vim.tbl_isempty(results) then
       print("Empty " .. title)
       return
     end
 
-    local results = {}
-    for _, item in ipairs(jsonArray) do
-      table.insert(results, vim.fn.json_encode(item))
+    local workflows = {}
+    for _, item in ipairs(results) do
+      if item.id and item.name then
+        table.insert(workflows, { id = item.id, name = item.name })
+      end
+    end
+
+    if vim.tbl_isempty(workflows) then
+      print("No valid workflows found")
+      return
     end
 
     pickers.new(opts, {
       prompt_title = title,
       finder = finders.new_table {
-        results = results,
+        results = workflows,
         entry_maker = gh_e.gen_from_workflow(opts),
       },
+      previewer = gh_p.gh_run_preview.new(opts),
       sorter = conf.file_sorter(opts),
       attach_mappings = function(_, map)
         map("i", "<c-r>", gh_a.gh_workflow_run)
@@ -332,14 +340,22 @@ B.gh_workflow = function(opts)
 end
 
 B.gh_workflow_run = function(prompt_bufnr)
-  local selection = vim.fn.json_decode(action_state.get_selected_entry())
-
+  local selection = action_state.get_selected_entry()
   actions.close(prompt_bufnr)
-  if selection.id == "" then
+
+  if not selection or not selection.id or selection.id == "" then
+    print("No valid workflow selected.")
     return
   end
-  print("Requested run gh action: ", selection.name)
-  os.execute("gh workflow run " .. selection.id)
+
+  print("Requested to run GitHub Action workflow:", selection.name or selection.id)
+  local success = os.execute("gh workflow run " .. selection.id)
+
+  if success then
+    print("Workflow run triggered successfully.")
+  else
+    print("Failed to trigger workflow.")
+  end
 end
 
 
