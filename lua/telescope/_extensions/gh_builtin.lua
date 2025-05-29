@@ -21,7 +21,7 @@ local function parse_opts(opts, target)
   if target == "issue" then
     tmp_table = { "author", "assignee", "mention", "label", "milestone", "search", "state", "limit" }
   elseif target == "pr" then
-    tmp_table = { "assignee", "label", "search", "state", "base", "limit" }
+    tmp_table = { "author", "assignee", "label", "search", "state", "base", "limit" }
   elseif target == "run" then
     tmp_table = { "workflow", "limit" }
   elseif target == "gist" then
@@ -161,10 +161,10 @@ B.gh_pull_request_files = function(opts, pr_number)
   opts.limit = opts.limit or 100
 
   local title_cmd = pr_number and { "gh", "pr", "view", pr_number, "--json", "title", "--jq", ".title" }
-    or { "gh", "pr", "view", "--json", "title", "--jq", ".title" }
+      or { "gh", "pr", "view", "--json", "title", "--jq", ".title" }
 
   local cmd = pr_number and { "gh", "pr", "view", pr_number, "--json", "files", "--jq", ".files.[].path" }
-    or { "gh", "pr", "view", "--json", "files", "--jq", ".files.[].path" }
+      or { "gh", "pr", "view", "--json", "files", "--jq", ".files.[].path" }
 
   local pr_title = '"' .. utils.get_os_command_output(title_cmd)[1] .. '"'
   local title = "Modified Files for " .. pr_title
@@ -284,5 +284,56 @@ B.gh_run = function(opts)
     }):find()
   end)
 end
+
+B.gh_workflow = function(opts)
+  opts = opts or {}
+  opts.limit = opts.limit or 100
+  opts.wincmd = opts.wincmd or "botright vnew"
+  opts.wrap = opts.wrap or "nowrap"
+  opts.filetype = opts.filetype or "bash"
+  opts.timeout = opts.timeout or 1000
+  opts.wait_interval = opts.wait_interval or 2
+  opts.mode = "async"
+
+  if opts.cleanmeta == nil then
+    opts.cleanmeta = true
+  end
+  local opts_query = parse_opts(opts, "workflow")
+  local cmd = vim.tbl_flatten { "gh", "workflow", "list", opts_query }
+  local title = "Workflow list"
+  msgLoadingPopup("Loading " .. title, cmd, function(results)
+    if results[1] == "" then
+      print("Empty " .. title)
+      return
+    end
+    pickers.new(opts, {
+      prompt_title = title,
+      finder = finders.new_table {
+        results = results,
+        entry_maker = gh_e.gen_from_run(opts),
+      },
+      previewer = gh_p.gh_run_preview.new(opts),
+      sorter = conf.file_sorter(opts),
+      attach_mappings = function(_, map)
+        map("i", "<c-r>", gh_a.gh_workflow_run)
+        map("i", "<c-t>", gh_a.gh_run_web_view)
+        map("i", "<c-a>", gh_a.gh_run_cancel)
+        actions.select_default:replace(gh_a.gh_run_view_log(opts))
+        return true
+      end,
+    }):find()
+  end)
+end
+
+B.gh_workflow_run = function(prompt_bufnr)
+  local selection = action_state.get_selected_entry()
+  actions.close(prompt_bufnr)
+  if selection.id == "" then
+    return
+  end
+  print("Requested rerun of run: ", selection.id)
+  os.execute("gh workflow run " .. selection.id)
+end
+
 
 return B

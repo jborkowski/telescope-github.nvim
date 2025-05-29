@@ -8,5 +8,6 @@ return require("telescope").register_extension {
     pull_request_files = gh_b.gh_pull_request_files,
     run = gh_b.gh_run,
     secret = gh_b.gh_secret,
+    workflow = gh_b.gh_workflow
   },
 }
