@@ -347,8 +347,8 @@ B.gh_workflow_run = function(prompt_bufnr)
     return
   end
 
-  print("Requested to run GitHub Action workflow:", selection.name or selection.id)
-  local success = os.execute("gh workflow run " .. selection.id)
+  print("Requested to run GitHub Action workflow:", tostring(selection.name) or tostring(selection.id))
+  local success = os.execute("gh workflow run " .. tostring(selection.id))
 
   if success then
     print("Workflow run triggered successfully.")
