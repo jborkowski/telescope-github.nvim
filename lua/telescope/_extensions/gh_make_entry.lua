@@ -100,10 +100,10 @@ function gh_make_entry.gen_from_workflow(opts)
       return nil
     end
     return {
-      value = entry,
+      value = tostring(entry.id),
       ordinal = entry.name,
       display = make_display,
-      id = entry.id,
+      id = tostring(entry.id),
       name = entry.name,
     }
   end

@@ -248,11 +248,26 @@ end
 A.gh_run_rerun = function(prompt_bufnr)
   local selection = action_state.get_selected_entry()
   actions.close(prompt_bufnr)
-  if selection.id == "" then
-    return
-  end
   print("Requested rerun of run: ", selection.id)
   os.execute("gh run rerun " .. selection.id)
+end
+
+A.gh_workflow_run = function(prompt_bufnr)
+  local selection = action_state.get_selected_entry()
+
+  if selection.id == "" then
+    print("No valid workflow selected.")
+    return
+  end
+  actions.close(prompt_bufnr)
+
+  local success = os.execute("gh workflow run " .. selection.id)
+
+  if success then
+    print("Workflow run triggered successfully.")
+  else
+    print("Failed to trigger workflow.")
+  end
 end
 
 A.gh_run_cancel = function(prompt_bufnr)

@@ -326,35 +326,13 @@ B.gh_workflow = function(opts)
         results = workflows,
         entry_maker = gh_e.gen_from_workflow(opts),
       },
-      previewer = gh_p.gh_run_preview.new(opts),
       sorter = conf.file_sorter(opts),
       attach_mappings = function(_, map)
-        map("i", "<c-r>", gh_a.gh_workflow_run)
-        map("i", "<c-t>", gh_a.gh_run_web_view)
-        map("i", "<c-a>", gh_a.gh_run_cancel)
+        actions.select_default:replace(gh_a.gh_workflow_run)
         return true
       end,
     }):find()
   end)
-end
-
-B.gh_workflow_run = function(prompt_bufnr)
-  local selection = action_state.get_selected_entry()
-  actions.close(prompt_bufnr)
-
-  if not selection or not selection.id or selection.id == "" then
-    print("No valid workflow selected.")
-    return
-  end
-
-  print("Requested to run GitHub Action workflow:", tostring(selection.name) or tostring(selection.id))
-  local success = os.execute("gh workflow run " .. tostring(selection.id))
-
-  if success then
-    print("Workflow run triggered successfully.")
-  else
-    print("Failed to trigger workflow.")
-  end
 end
 
 
