@@ -332,7 +332,6 @@ B.gh_workflow = function(opts)
         map("i", "<c-r>", gh_a.gh_workflow_run)
         map("i", "<c-t>", gh_a.gh_run_web_view)
         map("i", "<c-a>", gh_a.gh_run_cancel)
-        actions.select_default:replace(gh_a.gh_run_view_log(opts))
         return true
       end,
     }):find()

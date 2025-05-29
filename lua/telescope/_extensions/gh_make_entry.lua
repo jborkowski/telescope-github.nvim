@@ -83,7 +83,7 @@ function gh_make_entry.gen_from_workflow(opts)
   local displayer = entry_display.create {
     separator = "|",
     items = {
-      { width = 20 },
+      { width = 10 },
       { width = 40 },
       { remaining = true },
     },
