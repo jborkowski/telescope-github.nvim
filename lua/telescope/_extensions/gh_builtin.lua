@@ -299,7 +299,7 @@ B.gh_workflow = function(opts)
     opts.cleanmeta = true
   end
   local opts_query = parse_opts(opts, "workflow")
-  local cmd = vim.tbl_flatten { "gh", "workflow", "list", opts_query }
+  local cmd = vim.tbl_flatten { "gh", "workflow", "list", "--json", "id", "--json", "name", opts_query }
   local title = "Workflow list"
   msgLoadingPopup("Loading " .. title, cmd, function(results)
     if results[1] == "" then
@@ -310,13 +310,14 @@ B.gh_workflow = function(opts)
       prompt_title = title,
       finder = finders.new_table {
         results = results,
-        entry_maker = make_entry.gen_from_string(opts),
+        entry_maker = gh_e.gen_from_workflow(opts),
       },
       sorter = conf.file_sorter(opts),
       attach_mappings = function(_, map)
         map("i", "<c-r>", gh_a.gh_workflow_run)
         map("i", "<c-t>", gh_a.gh_run_web_view)
         map("i", "<c-a>", gh_a.gh_run_cancel)
+        actions.select_default:replace(gh_a.gh_run_view_log(opts))
         return true
       end,
     }):find()
@@ -329,7 +330,7 @@ B.gh_workflow_run = function(prompt_bufnr)
   if selection.id == "" then
     return
   end
-  print("Requested run of workflow: ", selection.id)
+  print("Requested run gh action: ", selection.name)
   os.execute("gh workflow run " .. selection.id)
 end
 
