@@ -317,7 +317,6 @@ B.gh_workflow = function(opts)
         map("i", "<c-r>", gh_a.gh_workflow_run)
         map("i", "<c-t>", gh_a.gh_run_web_view)
         map("i", "<c-a>", gh_a.gh_run_cancel)
-        actions.select_default:replace(gh_a.gh_run_view_log(opts))
         return true
       end,
     }):find()
@@ -330,7 +329,7 @@ B.gh_workflow_run = function(prompt_bufnr)
   if selection.id == "" then
     return
   end
-  print("Requested rerun of run: ", selection.id)
+  print("Requested run of workflow: ", selection.id)
   os.execute("gh workflow run " .. selection.id)
 end
 
