@@ -301,11 +301,18 @@ B.gh_workflow = function(opts)
   local opts_query = parse_opts(opts, "workflow")
   local cmd = vim.tbl_flatten { "gh", "workflow", "list", "--json", "id", "--json", "name", opts_query }
   local title = "Workflow list"
-  msgLoadingPopup("Loading " .. title, cmd, function(results)
-    if results[1] == "" then
+  msgLoadingPopup("Loading " .. title, cmd, function(raw)
+    local jsonArray = vim.fn.json_decode(raw)
+    if jsonArray == nil or #jsonArray == 0 then
       print("Empty " .. title)
       return
     end
+
+    local results = {}
+    for _, item in ipairs(jsonArray) do
+      table.insert(results, vim.fn.json_encode(item))
+    end
+
     pickers.new(opts, {
       prompt_title = title,
       finder = finders.new_table {
